@@ -23,7 +23,6 @@ class AuthControllerTest {
     @DisplayName("Deve retornar 200 OK e o token JWT ao logar com as credenciais válidas mapeadas pelo mock")
     fun testEndpointLoginSuccess() {
         val rawPassword = "admin123"
-        // Gera o hash real que o AuthService espera decodificar
         val hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt())
 
         val mockUser = User().apply {
@@ -32,7 +31,6 @@ class AuthControllerTest {
             role = "ADMIN"
         }
 
-        // Intercepta a busca do banco de dados no ambiente de teste
         whenever(userRepository.findByUsername("admin@unifor.br")).thenReturn(mockUser)
 
         val credentials = mapOf(
@@ -46,7 +44,7 @@ class AuthControllerTest {
             .`when`()
             .post("/api/auth/login")
             .then()
-            .statusCode(200) // Agora sim vai retornar 200 OK
+            .statusCode(200)
             .body("token", notNullValue())
             .body("username", `is`("admin@unifor.br"))
             .body("role", `is`("ADMIN"))

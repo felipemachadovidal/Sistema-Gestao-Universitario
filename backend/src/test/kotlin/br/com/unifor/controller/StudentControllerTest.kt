@@ -72,7 +72,7 @@ class StudentControllerTest {
     @DisplayName("Deve retornar 400 Bad Request se o nome do aluno tiver menos de 3 caracteres")
     fun testCreateStudentNameTooShort() {
         val invalidStudent = mapOf(
-            "name" to "Fe", // Curto demais! Mínimo é 3
+            "name" to "Fe",
             "email" to "felipe@unifor.br",
             "cpf" to "12345678901"
         )
@@ -84,5 +84,25 @@ class StudentControllerTest {
             .post("/api/students")
             .then()
             .statusCode(400)
+    }
+    @Test
+    @DisplayName("Deve retornar 204 No Content ao realizar o Soft Delete de um estudante")
+    fun testDeleteStudentSuccess() {
+        given()
+            .`when`()
+            .delete("/api/students/1")
+            .then()
+            .statusCode(204)
+    }
+
+    @Test
+    @DisplayName("Deve retornar 200 OK e a lista de estudantes ativos ao acessar o endpoint GET")
+    fun testGetAllStudentsSuccess() {
+        given()
+            .`when`()
+            .get("/api/students")
+            .then()
+            .statusCode(200)
+            .body("size()", notNullValue())
     }
 }
