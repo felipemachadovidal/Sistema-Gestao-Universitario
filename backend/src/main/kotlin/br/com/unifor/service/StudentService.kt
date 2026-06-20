@@ -36,8 +36,14 @@ class StudentService(
     fun create(request: StudentRequest): StudentResponse {
         log.info("Iniciando processo de cadastro para o aluno com CPF: ${request.cpf}")
 
-        if (studentRepository.findByCpf(request.cpf) != null) {
-            log.error("Falha ao cadastrar aluno: CPF ${request.cpf} já está em uso.")
+        val cleanCpf = request.cpf.replace(Regex("[^0-9]"), "")
+        if (cleanCpf.length != 11) {
+            log.error("Falha ao cadastrar: CPF ${request.cpf} não possui 11 dígitos numéricos.")
+            throw WebApplicationException("O CPF deve conter exatamente 11 dígitos numéricos.", Response.Status.BAD_REQUEST)
+        }
+
+        if (studentRepository.findByCpf(cleanCpf) != null) {
+            log.error("Falha ao cadastrar aluno: CPF $cleanCpf já está em uso.")
             throw WebApplicationException("Já existe um aluno cadastrado com este CPF.", Response.Status.CONFLICT)
         }
         if (studentRepository.findByEmail(request.email) != null) {
@@ -48,10 +54,11 @@ class StudentService(
         val student = Student().apply {
             name = request.name
             email = request.email
-            cpf = request.cpf
+            cpf = cleanCpf
         }
 
         studentRepository.persist(student)
+
         log.info("Aluno cadastrado com sucesso! ID gerado: ${student.id}")
         return student.toResponse()
     }
@@ -59,14 +66,17 @@ class StudentService(
     @Transactional
     fun update(id: Long, request: StudentRequest): StudentResponse {
         log.info("Iniciando atualização do aluno ID: $id")
-        val student = studentRepository.findActiveById(id) ?: run {
-            log.warn("Tentativa de atualização falhou: Aluno ID $id não existe.")
-            throw NotFoundException("Aluno não encontrado para atualização.")
-        }
+        val student = studentRepository.findById(id)
+            ?: throw NotFoundException("Aluno não encontrado para atualização.")
 
         if (student.cpf != request.cpf && studentRepository.findByCpf(request.cpf) != null) {
             log.error("Falha ao atualizar aluno ID $id: Novo CPF ${request.cpf} já pertence a outro usuário.")
             throw WebApplicationException("O novo CPF informado já está em uso.", Response.Status.CONFLICT)
+        }
+
+        if (student.deleted) {
+            log.warn("Tentativa de alteração negada: Aluno ID $id está inativo/deletado.")
+            throw WebApplicationException("Não é permitido atualizar os dados de um aluno excluído.", Response.Status.BAD_REQUEST)
         }
 
         student.name = request.name

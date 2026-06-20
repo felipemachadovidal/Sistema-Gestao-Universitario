@@ -38,6 +38,13 @@ class CourseService(
     @Transactional
     fun create(request: CourseRequest): CourseResponse {
         log.info("Cadastrando novo curso: ${request.name}")
+
+        if (request.durationHours > 500) {
+            throw jakarta.ws.rs.WebApplicationException(
+                "A carga horária máxima permitida é de 500 horas.",
+                jakarta.ws.rs.core.Response.Status.BAD_REQUEST
+            )
+        }
         val course = Course().apply {
             name = request.name
             description = request.description

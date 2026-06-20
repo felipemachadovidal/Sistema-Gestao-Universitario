@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
+import br.com.unifor.dto.CourseRequest
+import org.junit.jupiter.api.Assertions.assertEquals
 
 @QuarkusTest
 class CourseServiceTest {
@@ -53,5 +55,17 @@ class CourseServiceTest {
         assertThrows(WebApplicationException::class.java) {
             courseService.enrollStudent(courseId, studentId)
         }
+    }
+
+    @Test
+    @DisplayName("Deve lançar BadRequest se a carga horária do curso ultrapassar 500 horas")
+    fun testCreateCourseDurationExceeded() {
+        val request = CourseRequest("Treinamento Avançado Quarkus", "Descrição longa", 600)
+
+        val exception = assertThrows(WebApplicationException::class.java) {
+            courseService.create(request)
+        }
+
+        assertEquals(400, exception.response.status)
     }
 }
