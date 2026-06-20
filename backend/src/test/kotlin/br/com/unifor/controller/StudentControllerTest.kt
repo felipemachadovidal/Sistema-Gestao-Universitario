@@ -21,7 +21,7 @@ class StudentControllerTest {
         )
 
         given()
-            .contentType(ContentType.JSON) // Corrigido: adicionado o ponto inicial aqui
+            .contentType(ContentType.JSON)
             .body(validStudent)
             .`when`()
             .post("/api/students")
@@ -47,7 +47,7 @@ class StudentControllerTest {
             .`when`()
             .post("/api/students")
             .then()
-            .statusCode(400) // Bad Request disparado pelo Hibernate Validator!
+            .statusCode(400)
     }
 
     @Test
@@ -57,6 +57,24 @@ class StudentControllerTest {
             "name" to "Felipe Vidal",
             "email" to "felipe@unifor.br",
             "cpf" to ""
+        )
+
+        given()
+            .contentType(ContentType.JSON)
+            .body(invalidStudent)
+            .`when`()
+            .post("/api/students")
+            .then()
+            .statusCode(400)
+    }
+
+    @Test
+    @DisplayName("Deve retornar 400 Bad Request se o nome do aluno tiver menos de 3 caracteres")
+    fun testCreateStudentNameTooShort() {
+        val invalidStudent = mapOf(
+            "name" to "Fe", // Curto demais! Mínimo é 3
+            "email" to "felipe@unifor.br",
+            "cpf" to "12345678901"
         )
 
         given()
