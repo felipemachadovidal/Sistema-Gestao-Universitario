@@ -1,83 +1,77 @@
-<div class="dashboard-container">
-  <nav class="sidebar">
-    <h3>Unifor Acadêmico</h3>
-    <ul>
-      <li><a routerLink="/students" class="active">Alunos</a></li>
-      <li><a routerLink="/courses">Cursos</a></li>
-    </ul>
-  </nav>
-
-  <main class="content">
-    <div class="header-actions">
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-title">
       <h2>Gerenciamento de Alunos</h2>
-      <button class="btn-primary">+ Novo Aluno</button>
+      <p class="subtitle">Consulte, adicione ou remova os estudantes cadastrados.</p>
     </div>
+    <button class="btn-primary" (click)="toggleForm()">
+      {{ showForm() ? 'Cancelar' : '+ Novo Aluno' }}
+    </button>
+  </div>
 
-    <div class="header-actions">
-      <h2>Gerenciamento de Alunos</h2>
-      <button class="btn-primary" (click)="toggleForm()">
-        {{ showForm() ? 'Cancelar' : '+ Novo Aluno' }}
-      </button>
-    </div>
-
-    @if (showForm()) {
-    <div class="form-card">
-      <h3>Cadastrar Novo Estudante</h3>
-      <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Nome Completo</label>
-            <input type="text" formControlName="name" placeholder="Ex: Felipe Vidal">
-          </div>
-          <div class="form-group">
-            <label>E-mail</label>
-            <input type="email" formControlName="email" placeholder="felipe@unifor.br">
-          </div>
-          <div class="form-group">
-            <label>CPF (apenas números)</label>
-            <input type="text" formControlName="cpf" placeholder="000.000.000-00">
-          </div>
+  @if (showForm()) {
+  <div class="form-card">
+    <h3>Cadastrar Novo Estudante</h3>
+    <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" formControlName="name" placeholder="Ex: Felipe Vidal">
         </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" formControlName="email" placeholder="felipe@unifor.br">
+        </div>
+        <div class="form-group">
+          <label>CPF (apenas números)</label>
+          <input type="text" formControlName="cpf" placeholder="00000000000">
+        </div>
+      </div>
+      <div class="form-actions">
         <button type="submit" [disabled]="studentForm.invalid" class="btn-save">Salvar Aluno</button>
-      </form>
-    </div>
-    }
+      </div>
+    </form>
+  </div>
+  }
 
-    @if (isLoading()) {
-    <div class="loading">Carregando dados dos estudantes...</div>
-    } @else {
-    <div class="table-card">
-      <table>
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>E-mail</th>
-          <th>CPF</th>
-          <th>Data de Cadastro</th>
-          <th>Ações</th>
-        </tr>
-        </thead>
-        <tbody>
-        @for (student of students(); track student.id) {
-        <tr>
-          <td>{{ student.id }}</td>
-          <td>{{ student.name }}</td>
-          <td>{{ student.email }}</td>
-          <td>{{ student.cpf }}</td>
-          <td>{{ student.registrationDate | date:'dd/MM/yyyy' }}</td>
-          <td>
-            <button class="btn-delete" (click)="deleteStudent(student.id)">Excluir</button>
-          </td>
-        </tr>
-        } @empty {
-        <tr>
-          <td colspan="6" class="text-center">Nenhum estudante ativo encontrado no sistema.</td>
-        </tr>
-        }
-        </tbody>
-      </table>
-    </div>
-    }
-  </main>
+  @if (isLoading()) {
+  <div class="loading-state">
+    <p>Carregando dados dos estudantes...</p>
+  </div>
+  } @else {
+  <div class="table-card">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>E-mail</th>
+        <th>CPF</th>
+        <th>Data de Cadastro</th>
+        <th class="text-center">Ações</th>
+      </tr>
+      </thead>
+      <tbody>
+      @for (student of students(); track student.id) {
+      <tr>
+        <td><span class="badge-id">#{{ student.id }}</span></td>
+        <td class="font-bold">{{ student.name }}</td>
+        <td>{{ student.email }}</td>
+        <td class="text-muted">{{ student.cpf }}</td>
+        <td>{{ student.registrationDate | date:'dd/MM/yyyy' }}</td>
+        <td class="text-center">
+          <button class="btn-delete" (click)="deleteStudent(student.id)">Excluir</button>
+        </td>
+      </tr>
+      } @empty {
+      <tr>
+        <td colspan="6" class="empty-state">
+          <p>Nenhum estudante ativo encontrado no sistema.</p>
+        </td>
+      </tr>
+      }
+      </tbody>
+    </table>
+  </div>
+  }
 </div>
