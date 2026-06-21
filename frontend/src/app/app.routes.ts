@@ -16,11 +16,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/course-list/course-list.component').then(m => m.CourseListComponent),
     title: 'Gerenciamento de Cursos'
   },
-  ///{
-    //path: 'enrollment',
-    //loadComponent: () => import('./pages/enrollment/enrollment.component').then(m => m.EnrollmentComponent),
-    //title: 'Matrículas Acadêmicas'
-  ///},
+  {
+    path: 'enrollment',
+    loadComponent: () => import('./pages/enrollment/enrollment.component').then(m => m.EnrollmentComponent),
+    title: 'Matrículas Acadêmicas'
+  },
   {
     path: '',
     redirectTo: 'login',

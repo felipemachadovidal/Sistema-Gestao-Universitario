@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { StudentResponse } from './student.service';
 
 export interface CourseRequest {
   name: string;
