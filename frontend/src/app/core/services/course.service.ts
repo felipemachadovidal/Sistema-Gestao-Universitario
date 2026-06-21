@@ -34,4 +34,12 @@ export class CourseService {
   softDelete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  enrollStudent(courseId: number, studentId: number): Observable<any> {
+      return this.http.post<any>(`${this.apiUrl}/${courseId}/enroll/${studentId}`, {});
+    }
+
+  listStudentsEnrolled(courseId: number): Observable<StudentResponse[]> {
+      return this.http.get<StudentResponse[]>(`${this.apiUrl}/${courseId}/students`);
+    }
 }

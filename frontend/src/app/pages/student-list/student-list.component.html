@@ -13,6 +13,36 @@
       <button class="btn-primary">+ Novo Aluno</button>
     </div>
 
+    <div class="header-actions">
+      <h2>Gerenciamento de Alunos</h2>
+      <button class="btn-primary" (click)="toggleForm()">
+        {{ showForm() ? 'Cancelar' : '+ Novo Aluno' }}
+      </button>
+    </div>
+
+    @if (showForm()) {
+    <div class="form-card">
+      <h3>Cadastrar Novo Estudante</h3>
+      <form [formGroup]="studentForm" (ngSubmit)="saveStudent()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" formControlName="name" placeholder="Ex: Felipe Vidal">
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" formControlName="email" placeholder="felipe@unifor.br">
+          </div>
+          <div class="form-group">
+            <label>CPF (apenas números)</label>
+            <input type="text" formControlName="cpf" placeholder="000.000.000-00">
+          </div>
+        </div>
+        <button type="submit" [disabled]="studentForm.invalid" class="btn-save">Salvar Aluno</button>
+      </form>
+    </div>
+    }
+
     @if (isLoading()) {
     <div class="loading">Carregando dados dos estudantes...</div>
     } @else {

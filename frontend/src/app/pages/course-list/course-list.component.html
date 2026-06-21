@@ -13,6 +13,36 @@
       <button class="btn-primary">+ Novo Curso</button>
     </div>
 
+    <div class="header-actions">
+      <h2>Gerenciamento de Cursos</h2>
+      <button class="btn-primary" (click)="toggleForm()">
+        {{ showForm() ? 'Cancelar' : '+ Novo Curso' }}
+      </button>
+    </div>
+
+    @if (showForm()) {
+    <div class="form-card">
+      <h3>Novo Curso</h3>
+      <form [formGroup]="courseForm" (ngSubmit)="saveCourse()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome do Curso</label>
+            <input type="text" formControlName="name" placeholder="Ex: Java Fullstack">
+          </div>
+          <div class="form-group">
+            <label>Carga Horária (h)</label>
+            <input type="number" formControlName="durationHours">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Descrição</label>
+            <textarea formControlName="description" rows="2" placeholder="Descreva o curso..."></textarea>
+          </div>
+        </div>
+        <button type="submit" [disabled]="courseForm.invalid" class="btn-save">Criar Curso</button>
+      </form>
+    </div>
+    }
+
     @if (isLoading()) {
     <div class="loading">Carregando dados dos cursos...</div>
     } @else {
