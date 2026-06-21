@@ -7,7 +7,7 @@ data class LoginRequest(
     val username: String,
 
     @field:NotBlank(message = "A senha é obrigatória")
-    val javaPassword: String
+    val password: String
 )
 
 

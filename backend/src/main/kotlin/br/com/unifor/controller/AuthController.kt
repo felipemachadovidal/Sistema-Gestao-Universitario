@@ -1,22 +1,30 @@
-package br.com.unifor.controller
+package br.com.unifor.controller // Use o seu pacote real
 
-import br.com.unifor.dto.LoginRequest
-import br.com.unifor.dto.LoginResponse
-import br.com.unifor.service.AuthService
-import jakarta.validation.Valid
-import jakarta.ws.rs.*
-import jakarta.ws.rs.core.MediaType
-import jakarta.ws.rs.core.Response
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Observes
+import io.vertx.ext.web.Router
 
-@Path("/api/auth")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
-class AuthController(private val authService: AuthService) {
+@ApplicationScoped
+class CorsConfig {
 
-    @POST
-    @Path("/login")
-    fun login(@Valid request: LoginRequest): Response {
-        val response = authService.login(request)
-        return Response.ok(response).build()
+    // Este método intercepta o servidor na camada mais baixa (Vert.x)
+    // antes mesmo do filtro de segurança rodar
+    fun init(@Observes router: Router) {
+        router.route().order(-1).handler { context ->
+            val response = context.response()
+
+            // Adiciona as permissões que o navegador exige
+            response.putHeader("Access-Control-Allow-Origin", "http://localhost:4200")
+            response.putHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+            response.putHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+            response.putHeader("Access-Control-Allow-Credentials", "true")
+
+            // Se for a checagem do navegador (OPTIONS), responde com 200 OK imediatamente e encerra
+            if (context.request().method().name() == "OPTIONS") {
+                response.setStatusCode(200).end()
+            } else {
+                context.next() // Se for o POST real, deixa seguir para o seu AuthController
+            }
+        }
     }
 }
