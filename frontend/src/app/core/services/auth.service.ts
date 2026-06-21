@@ -4,7 +4,7 @@ import { Observable, tap } from 'rxjs';
 
 export interface LoginRequest {
   username: string;
-  javaPassword?: string;
+  password?: string;
 }
 
 export interface LoginResponse {

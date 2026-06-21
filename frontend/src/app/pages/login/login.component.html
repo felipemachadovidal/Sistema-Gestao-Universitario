@@ -1,7 +1,7 @@
 <div class="login-container">
   <div class="login-card">
     <h2>Desafio Unifor - Login</h2>
-    <p class="subtitle">Acesse o sistema de gerenciamento acadêmico</p>
+    <p class="subtitle">Acesse o sistema de gerenciamento da Unifor</p>
 
     @if (errorMessage) {
     <div class="alert alert-danger">
@@ -11,20 +11,20 @@
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="username">E-mail corporativo</label>
+        <label for="username">Usuário (Username)</label>
         <input
           id="username"
-          type="email"
+          type="text"
           formControlName="username"
-          placeholder="exemplo@unifor.br"
+          placeholder="Ex: admin@unifor.br"
           [class.input-error]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid"
         />
 
         @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')) {
-        <span class="error-msg">O e-mail é obrigatório.</span>
+        <span class="error-msg">O nome de usuário é obrigatório.</span>
         }
-        @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('email')) {
-        <span class="error-msg">Insira um formato de e-mail válido.</span>
+        @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('minlength')) {
+        <span class="error-msg">O usuário deve conter pelo menos 3 caracteres.</span>
         }
       </div>
 
@@ -33,16 +33,16 @@
         <input
           id="password"
           type="password"
-          formControlName="javaPassword"
+          formControlName="password"
           placeholder="••••••••"
-          [class.input-error]="loginForm.get('javaPassword')?.touched && loginForm.get('javaPassword')?.invalid"
+          [class.input-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
         />
 
-        @if (loginForm.get('javaPassword')?.touched && loginForm.get('javaPassword')?.hasError('required')) {
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
         <span class="error-msg">A senha é obrigatória.</span>
         }
-        @if (loginForm.get('javaPassword')?.touched && loginForm.get('javaPassword')?.hasError('minlength')) {
-        <span class="error-msg">A senha deve ter pelo menos 6 caracteres.</span>
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')) {
+        <span class="error-msg">A senha deve ter pelo menos 4 caracteres.</span>
         }
       </div>
 

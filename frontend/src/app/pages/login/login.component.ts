@@ -6,7 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule], // Habilita o uso de formulários reativos na tela
+  imports: [ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -18,8 +18,8 @@ export class LoginComponent {
   errorMessage = '';
 
   loginForm = this.fb.group({
-    username: ['', [Validators.required, Validators.email]],
-    javaPassword: ['', [Validators.required, Validators.minLength(6)]]
+    username: ['', [Validators.required, Validators.minLength(3)]],
+    password: ['', [Validators.required, Validators.minLength(4)]]
   });
 
   onSubmit(): void {
