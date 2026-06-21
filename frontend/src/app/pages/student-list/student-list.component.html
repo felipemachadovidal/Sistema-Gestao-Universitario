@@ -1,1 +1,53 @@
-<p>student-list works!</p>
+<div class="dashboard-container">
+  <nav class="sidebar">
+    <h3>Unifor Acadêmico</h3>
+    <ul>
+      <li><a routerLink="/students" class="active">Alunos</a></li>
+      <li><a routerLink="/courses">Cursos</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <div class="header-actions">
+      <h2>Gerenciamento de Alunos</h2>
+      <button class="btn-primary">+ Novo Aluno</button>
+    </div>
+
+    @if (isLoading()) {
+    <div class="loading">Carregando dados dos estudantes...</div>
+    } @else {
+    <div class="table-card">
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>CPF</th>
+          <th>Data de Cadastro</th>
+          <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (student of students(); track student.id) {
+        <tr>
+          <td>{{ student.id }}</td>
+          <td>{{ student.name }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.cpf }}</td>
+          <td>{{ student.registrationDate | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <button class="btn-delete" (click)="deleteStudent(student.id)">Excluir</button>
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="6" class="text-center">Nenhum estudante ativo encontrado no sistema.</td>
+        </tr>
+        }
+        </tbody>
+      </table>
+    </div>
+    }
+  </main>
+</div>
