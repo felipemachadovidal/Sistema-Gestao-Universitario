@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CourseService, CourseResponse } from '../../core/services/course.service';
 import { RouterModule } from '@angular/router';
+import { CourseService, CourseResponse } from '../../core/services/course.service';
+// 🌟 1. Descomentado e importado o serviço real de estudantes
+import { StudentService } from '../../core/services/student.service';
 
 @Component({
   selector: 'app-course-list',
@@ -13,11 +15,18 @@ import { RouterModule } from '@angular/router';
 })
 export class CourseListComponent implements OnInit {
   private courseService = inject(CourseService);
+  // 🌟 2. Descomentado e injetado o serviço de estudantes
+  private studentService = inject(StudentService);
   private fb = inject(NonNullableFormBuilder);
 
   courses = signal<CourseResponse[]>([]);
   isLoading = signal<boolean>(true);
   showForm = signal<boolean>(false);
+
+  // Estados reais do Modal Acadêmico
+  selectedCourse = signal<CourseResponse | null>(null);
+  courseStudents = signal<any[]>([]); // Alunos matriculados vindo do Quarkus
+  allStudents = signal<any[]>([]);    // Todos os alunos cadastrados para o <select>
 
   courseForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -65,5 +74,72 @@ export class CourseListComponent implements OnInit {
         next: () => this.courses.update(all => all.filter(c => c.id !== id))
       });
     }
+  }
+
+  // ==========================================
+  // CONEXÃO REAL COM O BACKEND PARA MATRÍCULAS
+  // ==========================================
+
+  openStudentsModal(course: CourseResponse): void {
+    this.selectedCourse.set(course);
+    this.loadCourseStudents(course.id);
+    this.loadAllStudentsForSelection();
+  }
+
+  closeModal(): void {
+    this.selectedCourse.set(null);
+    this.courseStudents.set([]);
+  }
+
+  loadCourseStudents(courseId: number): void {
+    // Chama o GET /api/courses/{courseId}/students do seu Quarkus
+    this.courseService.listStudentsEnrolled(courseId).subscribe({
+      next: (students) => this.courseStudents.set(students),
+      error: (err) => console.error('Erro ao buscar estudantes do curso', err)
+    });
+  }
+
+  // 🌟 3. FUNÇÃO ATUALIZADA: Buscando a lista real de estudantes cadastrados
+  loadAllStudentsForSelection(): void {
+    // Busca os alunos do StudentService (certifique-se de que o método se chama listAll ou similar)
+    this.studentService.listAll().subscribe({
+      next: (students) => {
+        this.allStudents.set(students);
+      },
+      error: (err) => {
+        console.error('Erro ao buscar a lista global de estudantes para seleção', err);
+      }
+    });
+  }
+
+  enrollStudent(studentIdStr: string): void {
+    const studentId = parseInt(studentIdStr, 10);
+    const course = this.selectedCourse();
+
+    if (!studentId || !course) {
+      alert('Por favor, selecione um estudante na lista.');
+      return;
+    }
+
+    this.courseService.enrollStudent(course.id, studentId).subscribe({
+      next: (response) => {
+        alert(response.message || 'Aluno matriculado com sucesso!');
+        this.loadCourseStudents(course.id); // 🔄 Recarrega a tabela interna do modal na hora!
+      },
+      error: (err) => {
+        if (err.status === 409) {
+          alert('Atenção: Este aluno já está matriculado neste curso!');
+        } else {
+          alert('Erro ao realizar matrícula.');
+        }
+      }
+    });
+  }
+
+  unenrollStudent(studentId: number): void {
+    const course = this.selectedCourse();
+    if (!course) return;
+
+    alert('Funcionalidade de remover matrícula requer rota DELETE correspondente no backend.');
   }
 }

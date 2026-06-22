@@ -2,7 +2,7 @@
   <div class="page-header">
     <div class="header-title">
       <h2>Gerenciamento de Cursos</h2>
-      <p class="subtitle">Gerencie a grade curricular, descrições e a carga horária dos cursos oferecidos.</p>
+      <p class="subtitle">Gerencie a grade curricular, descrições e a carga horária dos cursos.</p>
     </div>
     <button class="btn-primary" (click)="toggleForm()">
       {{ showForm() ? 'Cancelar' : '+ Novo Curso' }}
@@ -26,7 +26,7 @@
 
         <div class="form-group full-width">
           <label>Descrição do Curso</label>
-          <textarea formControlName="description" rows="3" placeholder="Descreva brevemente os objetivos e o conteúdo do curso..."></textarea>
+          <textarea formControlName="description" rows="3" placeholder="Descreva brevemente os objetivos do curso..."></textarea>
         </div>
       </div>
 
@@ -61,6 +61,7 @@
         <td class="text-muted">{{ course.description }}</td>
         <td><span class="badge-hours">{{ course.durationHours }}h</span></td>
         <td class="text-center">
+          <button class="btn-info" (click)="openStudentsModal(course)">👁️ Ver Alunos</button>
           <button class="btn-delete" (click)="deleteCourse(course.id)">Excluir</button>
         </td>
       </tr>
@@ -73,6 +74,64 @@
       }
       </tbody>
     </table>
+  </div>
+  }
+
+  @if (selectedCourse()) {
+  <div class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Alunos Matriculados: {{ selectedCourse()?.name }}</h3>
+        <button class="btn-close" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="enrollment-zone">
+          <h4>Matricular Novo Aluno neste Curso</h4>
+          <div class="enrollment-form">
+            <select #studentSelect class="form-select">
+              <option value="">-- Selecione um Aluno --</option>
+              @for (student of allStudents(); track student.id) {
+              <option [value]="student.id">{{ student.name }} (CPF: {{ student.cpf }})</option>
+              }
+            </select>
+            <button class="btn-success" (click)="enrollStudent(studentSelect.value)">Matricular</button>
+          </div>
+        </div>
+
+        <div class="modal-table-container">
+          <h4>Estudantes Ativos no Curso</h4>
+          <table class="modal-table">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for (st of courseStudents(); track st.id) {
+            <tr>
+              <td>#{{ st.id }}</td>
+              <td class="font-bold">{{ st.name }}</td>
+              <td>{{ st.email }}</td>
+              <td>
+                <button class="btn-link-delete" (click)="unenrollStudent(st.id)">Remover Matrícula</button>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="4" class="text-muted text-center" style="padding: 2rem;">
+                Nenhum aluno matriculado neste curso ainda.
+              </td>
+            </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
   }
 </div>
