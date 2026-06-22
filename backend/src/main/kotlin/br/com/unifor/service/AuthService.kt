@@ -20,7 +20,21 @@ class AuthService(private val userRepository: UserRepository) {
         val user = userRepository.findByUsername(request.username)
             ?: throw NotAuthorizedException("Usuário ou senha inválidos.")
 
-        if (!BCrypt.checkpw(request.password, user.passwordHash)) {
+        // 🌟 HIGIENIZAÇÃO COMPLETA: Remove caracteres invisíveis, nulos ou de controle de bytes
+        val senhaLimpa = request.password
+            .replace(Regex("[\\p{Cc}\\h]"), "") // Remove caracteres de controle e espaços horizontais ocultos
+            .trim()
+
+        // Faz o teste com a senha totalmente higienizada
+        val loginSucesso = BCrypt.checkpw(senhaLimpa, user.passwordHash?.trim())
+
+        log.info("👉 Senha Higienizada: [$senhaLimpa]")
+        log.info("👉 Resultado do Match Definitivo: $loginSucesso")
+
+        val hashGeradoNaHora = BCrypt.hashpw("admin123", BCrypt.gensalt())
+        log.info("🚨 COPIE ESTE HASH DO CONSOLE: $hashGeradoNaHora")
+
+        if (!loginSucesso) {
             log.warn("Senha inválida para o usuário: ${request.username}")
             throw NotAuthorizedException("Usuário ou senha inválidos.")
         }
