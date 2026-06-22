@@ -1,0 +1,17 @@
+@if (isLoginPage()) {
+<router-outlet></router-outlet>
+} @else {
+<div class="dashboard-container">
+  <nav class="sidebar">
+    <h3>Unifor Acadêmico</h3>
+    <ul>
+      <li><a routerLink="/students" routerLinkActive="active">Alunos</a></li>
+      <li><a routerLink="/courses" routerLinkActive="active">Cursos</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+}

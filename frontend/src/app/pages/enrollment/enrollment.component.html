@@ -1,0 +1,64 @@
+<div class="dashboard-container">
+  <nav class="sidebar">
+    <h3>Unifor Acadêmico</h3>
+    <ul>
+      <li><a routerLink="/students">Alunos</a></li>
+      <li><a routerLink="/courses">Cursos</a></li>
+      <li><a routerLink="/enrollment" class="active">Matrículas</a></li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <div class="header-actions">
+      <h2>Matrícula de Alunos</h2>
+    </div>
+
+    <div class="enrollment-grid">
+      <div class="card">
+        <h3>Nova Matrícula</h3>
+        <form [formGroup]="enrollmentForm" (ngSubmit)="confirmEnrollment()">
+          <div class="form-group">
+            <label>Selecione o Curso</label>
+            <select formControlName="courseId" (change)="onCourseChange()">
+              <option value="0" disabled>Escolha um curso...</option>
+              @for (course of courses(); track course.id) {
+              <option [value]="course.id">{{ course.name }} ({{ course.durationHours }}h)</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Selecione o Aluno</label>
+            <select formControlName="studentId">
+              <option value="0" disabled>Escolha um aluno...</option>
+              @for (student of students(); track student.id) {
+              <option [value]="student.id">{{ student.name }} - CPF: {{ student.cpf }}</option>
+              }
+            </select>
+          </div>
+
+          <button type="submit" class="btn-enroll" [disabled]="enrollmentForm.invalid || isLoading()">
+            {{ isLoading() ? 'Processando...' : 'Confirmar Matrícula' }}
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>Alunos Matriculados no Curso</h3>
+        <ul class="enrolled-list">
+          @for (s of enrolledStudents(); track s.id) {
+          <li>
+            <span class="bullet"></span>
+            <div>
+              <strong>{{ s.name }}</strong><br>
+              <small>{{ s.email }}</small>
+            </div>
+          </li>
+          } @empty {
+          <p class="empty-msg">Selecione um curso ou realize uma nova matrícula para ver a lista.</p>
+          }
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>

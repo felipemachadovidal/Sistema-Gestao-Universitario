@@ -1,0 +1,54 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Desafio Unifor - Login</h2>
+    <p class="subtitle">Acesse o sistema de gerenciamento da Unifor</p>
+
+    @if (errorMessage) {
+    <div class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Usuário (Username)</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Ex: admin@unifor.br"
+          [class.input-error]="loginForm.get('username')?.touched && loginForm.get('username')?.invalid"
+        />
+
+        @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('required')) {
+        <span class="error-msg">O nome de usuário é obrigatório.</span>
+        }
+        @if (loginForm.get('username')?.touched && loginForm.get('username')?.hasError('minlength')) {
+        <span class="error-msg">O usuário deve conter pelo menos 3 caracteres.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha de acesso</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          [class.input-error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+        />
+
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+        <span class="error-msg">A senha é obrigatória.</span>
+        }
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')) {
+        <span class="error-msg">A senha deve ter pelo menos 4 caracteres.</span>
+        }
+      </div>
+
+      <button type="submit" [disabled]="loginForm.invalid" class="btn-submit">
+        Entrar no Sistema
+      </button>
+    </form>
+  </div>
+</div>
