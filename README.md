@@ -421,9 +421,9 @@ https://www.nginx.com/resources/wiki/
 
 ---
 
-# 👥 Autor
+# 👥 Desafios técnicos
 
-Projeto desenvolvido como parte do processo técnico do desafio Unifor.
+O maior desafio foi o tempo, não tive tempo de implementar tudo que eu queria então decidir simplificar a criação de usuários e banco de dados para ser o mais ágil sem comprometer os testes.
 
 ---
 
