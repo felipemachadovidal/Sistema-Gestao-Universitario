@@ -137,9 +137,19 @@ export class CourseListComponent implements OnInit {
   }
 
   unenrollStudent(studentId: number): void {
-    const course = this.selectedCourse();
-    if (!course) return;
+      const course = this.selectedCourse();
+      if (!course) return;
 
-    alert('Funcionalidade de remover matrícula requer rota DELETE correspondente no backend.');
-  }
+      if (confirm('Deseja realmente remover a matrícula deste aluno do curso?')) {
+        this.courseService.unenrollStudent(course.id, studentId).subscribe({
+          next: () => {
+            this.courseStudents.update(all => all.filter(st => st.id !== studentId));
+            alert('Matrícula removida com sucesso!');
+          },
+          error: (err) => {
+            alert('Erro ao remover matrícula: ' + (err.error?.message || 'Tente novamente.'));
+          }
+        });
+      }
+    }
 }

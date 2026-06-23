@@ -124,6 +124,28 @@ class CourseService(
             }
     }
 
+    @Transactional
+    fun unenrollStudent(courseId: Long, studentId: Long) {
+        log.info("Iniciando cancelamento de matrícula: Aluno ID $studentId no Curso ID $courseId")
+
+        val course = courseRepository.findActiveById(courseId) ?: run {
+            log.error("Cancelamento de matrícula falhou: Curso ID $courseId não existe.")
+            throw NotFoundException("Curso não encontrado.")
+        }
+        val student = studentRepository.findActiveById(studentId) ?: run {
+            log.error("Cancelamento de matrícula falhou: Aluno ID $studentId não existe.")
+            throw NotFoundException("Aluno não encontrado.")
+        }
+
+        if (!course.students.contains(student)) {
+            log.warn("Cancelamento negado: Aluno ID $studentId não está matriculado no curso ID $courseId.")
+            throw WebApplicationException("Este aluno não está matriculado neste curso.", Response.Status.BAD_REQUEST)
+        }
+
+        course.students.remove(student)
+        log.info("Matrícula removida com sucesso! Aluno ID $studentId desvinculado do Curso ID $courseId.")
+    }
+
     private fun Course.toResponse() = CourseResponse(
         id = this.id!!,
         name = this.name!!,

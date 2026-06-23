@@ -61,4 +61,14 @@ class CourseController(
     fun getEnrolledStudents(@PathParam("courseId") courseId: Long): List<StudentResponse> {
         return courseService.listStudentsEnrolled(courseId)
     }
+
+    @DELETE
+    @Path("/{courseId}/unenroll/{studentId}")
+    fun unenrollStudent(
+        @PathParam("courseId") courseId: Long,
+        @PathParam("studentId") studentId: Long
+    ): Response {
+        courseService.unenrollStudent(courseId, studentId)
+        return Response.noContent().build()
+    }
 }

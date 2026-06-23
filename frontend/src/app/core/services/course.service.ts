@@ -43,4 +43,8 @@ export class CourseService {
   listStudentsEnrolled(courseId: number): Observable<StudentResponse[]> {
       return this.http.get<StudentResponse[]>(`${this.apiUrl}/${courseId}/students`);
     }
+
+  unenrollStudent(courseId: number, studentId: number): Observable<void> {
+      return this.http.delete<void>(`${this.apiUrl}/${courseId}/unenroll/${studentId}`);
+    }
 }
