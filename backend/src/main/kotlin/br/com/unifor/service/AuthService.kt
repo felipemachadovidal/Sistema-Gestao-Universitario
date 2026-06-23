@@ -20,11 +20,13 @@ class AuthService(private val userRepository: UserRepository) {
         val user = userRepository.findByUsername(request.username)
             ?: throw NotAuthorizedException("Usuário ou senha inválidos.")
 
-        val senhaLimpa = request.password
+        val cleanPassword = request.password
             .replace(Regex("[\\p{Cc}\\h]"), "")
             .trim()
 
-        if (!loginSucesso) {
+        val isLoginSuccessful = BCrypt.checkpw(cleanPassword, user.passwordHash)
+
+        if (!isLoginSuccessful) {
             log.warn("Senha inválida para o usuário: ${request.username}")
             throw NotAuthorizedException("Usuário ou senha inválidos.")
         }
