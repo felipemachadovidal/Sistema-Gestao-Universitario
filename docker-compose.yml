@@ -1,0 +1,32 @@
+services:
+  # Serviço da API do Backend (Quarkus)
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: desafio-unifor-backend
+    ports:
+      - "8081:8081"
+    environment:
+      - QUARKUS_HTTP_PORT=8081
+      - QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION=drop-and-create
+      - SMALLRYE_JWT_SIGN_KEY_STRING=uma-chave-secreta-muito-longa-e-segura-para-o-desafio-unifor-2026
+    networks:
+      - unifor-network
+
+  # Serviço do Site do Frontend (Angular)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: desafio-unifor-frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    networks:
+      - unifor-network
+
+networks:
+  unifor-network:
+    driver: bridge
