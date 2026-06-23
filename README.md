@@ -1,4 +1,4 @@
-# Desafio Unifor - Sistema de Gerenciamento Acadêmico
+# Sistema de Gerenciamento Acadêmico
 
 ## 📚 Descrição do Projeto
 
