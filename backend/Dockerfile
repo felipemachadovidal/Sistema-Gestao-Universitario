@@ -1,15 +1,18 @@
 FROM maven:3.9.6-eclipse-temurin-21-jammy AS build
-WORKDIR /build
+WORKDIR /workspace
 
-COPY pom.xml .
-COPY src ./src
+COPY backend/pom.xml .
+COPY backend/src ./src
 
+# Executa o build gerando o pacote
 RUN mvn clean package -DskipTests
 
+# Estágio 2: Runtime leve
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-COPY --from=build /build/target/quarkus-app/ /app/quarkus-app/
+# Copia os artefatos gerados direto da pasta do workspace do build
+COPY --from=build /workspace/target/quarkus-app/ /app/quarkus-app/
 
 EXPOSE 8081
 

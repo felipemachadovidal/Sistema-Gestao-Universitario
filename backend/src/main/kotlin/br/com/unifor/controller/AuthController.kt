@@ -1,27 +1,30 @@
-package br.com.unifor.controller // Use o seu pacote real
+package br.com.unifor.controller
 
-import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.event.Observes
-import io.vertx.ext.web.Router
+import br.com.unifor.dto.LoginRequest
+import br.com.unifor.dto.LoginResponse
+import br.com.unifor.service.AuthService
+import jakarta.ws.rs.Consumes
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 
-@ApplicationScoped
-class CorsConfig {
+@Path("/auth")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+class AuthController(private val authService: AuthService) {
 
-
-    fun init(@Observes router: Router) {
-        router.route().order(-1).handler { context ->
-            val response = context.response()
-
-            response.putHeader("Access-Control-Allow-Origin", "http://localhost:4200")
-            response.putHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
-            response.putHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-            response.putHeader("Access-Control-Allow-Credentials", "true")
-
-            if (context.request().method().name() == "OPTIONS") {
-                response.setStatusCode(200).end()
-            } else {
-                context.next()
-            }
+    @POST
+    @Path("/login")
+    fun login(request: LoginRequest): Response {
+        return try {
+            val response = authService.login(request)
+            Response.ok(response).build()
+        } catch (e: Exception) {
+            Response.status(Response.Status.UNAUTHORIZED)
+                .entity(mapOf("error" to e.message))
+                .build()
         }
     }
 }
