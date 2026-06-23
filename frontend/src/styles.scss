@@ -260,3 +260,42 @@ table th { background-color: #f1f5f9; color: #475569; font-weight: 600; font-siz
 .btn-save:disabled { background-color: #cbd5e1; cursor: not-allowed; }
 
 .empty-state { text-align: center; padding: 3rem !important; color: #94a3b8; }
+
+/* ==========================================
+   AJUSTE DE ESPAÇAMENTO DOS BOTÕES DA TABELA
+   ========================================== */
+
+/* 🌟 Transforma a célula de ações em um flexbox perfeito */
+table td.text-center {
+  display: flex;
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center;     /* Centraliza verticalmente */
+  gap: 0.5rem;             /* Cria exatamente 8px de espaço fixo entre cada botão */
+  white-space: nowrap;     /* Impede terminantemente a quebra de linha */
+  padding: 0.75rem 1rem;   /* Ajuste leve no padding para dar respiro vertical */
+}
+
+/* 🌟 Padroniza a altura e margem de todos os botões de ação da tabela */
+.btn-edit, .btn-info, .btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;            /* Força todos os botões a possuírem o mesmo tamanho vertical */
+  padding: 0 0.75rem;      /* Espaçamento interno lateral confortável */
+  font-size: 0.85rem;      /* Fonte ligeiramente menor para encaixar perfeitamente */
+  margin: 0 !important;    /* Remove margens antigas (como o margin-right do .btn-info) */
+}
+
+/* Novo estilo específico para o botão de Editar, combinando com o resto da paleta */
+.btn-edit {
+  background-color: #6366f1; /* Roxo Indigo moderno */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn-edit:hover {
+  background-color: #4f46e5;
+}

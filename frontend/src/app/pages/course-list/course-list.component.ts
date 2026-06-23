@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CourseService, CourseResponse } from '../../core/services/course.service';
-// 🌟 1. Descomentado e importado o serviço real de estudantes
 import { StudentService } from '../../core/services/student.service';
 
 @Component({
@@ -15,7 +14,6 @@ import { StudentService } from '../../core/services/student.service';
 })
 export class CourseListComponent implements OnInit {
   private courseService = inject(CourseService);
-  // 🌟 2. Descomentado e injetado o serviço de estudantes
   private studentService = inject(StudentService);
   private fb = inject(NonNullableFormBuilder);
 
@@ -23,10 +21,13 @@ export class CourseListComponent implements OnInit {
   isLoading = signal<boolean>(true);
   showForm = signal<boolean>(false);
 
+  // 🌟 O segredo do Update: Controla o ID do curso em edição
+  editingCourseId = signal<number | null>(null);
+
   // Estados reais do Modal Acadêmico
   selectedCourse = signal<CourseResponse | null>(null);
-  courseStudents = signal<any[]>([]); // Alunos matriculados vindo do Quarkus
-  allStudents = signal<any[]>([]);    // Todos os alunos cadastrados para o <select>
+  courseStudents = signal<any[]>([]);
+  allStudents = signal<any[]>([]);
 
   courseForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3)]],
@@ -51,20 +52,54 @@ export class CourseListComponent implements OnInit {
 
   toggleForm(): void {
     this.showForm.update(v => !v);
-    if (!this.showForm()) this.courseForm.reset();
+    if (!this.showForm()) {
+      this.clearForm();
+    }
+  }
+
+  clearForm(): void {
+    this.courseForm.reset();
+    this.editingCourseId.set(null);
+  }
+
+  // 🌟 NOVO: Prepara o formulário e joga a tela para o topo suavemente
+  editCourse(course: CourseResponse): void {
+    this.editingCourseId.set(course.id);
+    this.courseForm.patchValue({
+      name: course.name,
+      description: course.description,
+      durationHours: course.durationHours
+    });
+    this.showForm.set(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   saveCourse(): void {
     if (this.courseForm.valid) {
       const request = this.courseForm.getRawValue();
-      this.courseService.create(request).subscribe({
-        next: (newCourse) => {
-          this.courses.update(all => [newCourse, ...all]);
-          this.toggleForm();
-          alert('Curso criado com sucesso!');
-        },
-        error: (err) => alert('Erro: ' + (err.error?.message || 'Dados inválidos'))
-      });
+      const courseId = this.editingCourseId();
+
+      if (courseId) {
+        // Fluxo de Atualização (PUT)
+        this.courseService.update(courseId, request).subscribe({
+          next: (updatedCourse: CourseResponse) => {
+            this.courses.update(all => all.map(c => c.id === courseId ? updatedCourse : c));
+            this.toggleForm();
+            alert('Curso atualizado com sucesso!');
+          },
+          error: (err: any) => alert('Erro ao atualizar: ' + (err.error?.message || 'Dados inválidos'))
+        });
+      } else {
+        // Fluxo de Criação Original (POST)
+        this.courseService.create(request).subscribe({
+          next: (newCourse) => {
+            this.courses.update(all => [newCourse, ...all]);
+            this.toggleForm();
+            alert('Curso criado com sucesso!');
+          },
+          error: (err: any) => alert('Erro: ' + (err.error?.message || 'Dados inválidos'))
+        });
+      }
     }
   }
 
@@ -92,21 +127,18 @@ export class CourseListComponent implements OnInit {
   }
 
   loadCourseStudents(courseId: number): void {
-    // Chama o GET /api/courses/{courseId}/students do seu Quarkus
     this.courseService.listStudentsEnrolled(courseId).subscribe({
-      next: (students) => this.courseStudents.set(students),
-      error: (err) => console.error('Erro ao buscar estudantes do curso', err)
+      next: (students: any) => this.courseStudents.set(students),
+      error: (err: any) => console.error('Erro ao buscar estudantes do curso', err)
     });
   }
 
-  // 🌟 3. FUNÇÃO ATUALIZADA: Buscando a lista real de estudantes cadastrados
   loadAllStudentsForSelection(): void {
-    // Busca os alunos do StudentService (certifique-se de que o método se chama listAll ou similar)
     this.studentService.listAll().subscribe({
-      next: (students) => {
+      next: (students: any) => {
         this.allStudents.set(students);
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Erro ao buscar a lista global de estudantes para seleção', err);
       }
     });
@@ -122,11 +154,11 @@ export class CourseListComponent implements OnInit {
     }
 
     this.courseService.enrollStudent(course.id, studentId).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         alert(response.message || 'Aluno matriculado com sucesso!');
-        this.loadCourseStudents(course.id); // 🔄 Recarrega a tabela interna do modal na hora!
+        this.loadCourseStudents(course.id);
       },
-      error: (err) => {
+      error: (err: any) => {
         if (err.status === 409) {
           alert('Atenção: Este aluno já está matriculado neste curso!');
         } else {
@@ -137,19 +169,19 @@ export class CourseListComponent implements OnInit {
   }
 
   unenrollStudent(studentId: number): void {
-      const course = this.selectedCourse();
-      if (!course) return;
+    const course = this.selectedCourse();
+    if (!course) return;
 
-      if (confirm('Deseja realmente remover a matrícula deste aluno do curso?')) {
-        this.courseService.unenrollStudent(course.id, studentId).subscribe({
-          next: () => {
-            this.courseStudents.update(all => all.filter(st => st.id !== studentId));
-            alert('Matrícula removida com sucesso!');
-          },
-          error: (err) => {
-            alert('Erro ao remover matrícula: ' + (err.error?.message || 'Tente novamente.'));
-          }
-        });
-      }
+    if (confirm('Deseja realmente remover a matrícula deste aluno do curso?')) {
+      this.courseService.unenrollStudent(course.id, studentId).subscribe({
+        next: () => {
+          this.courseStudents.update(all => all.filter(st => st.id !== studentId));
+          alert('Matrícula removida com sucesso!');
+        },
+        error: (err: any) => {
+          alert('Erro ao remover matrícula: ' + (err.error?.message || 'Tente novamente.'));
+        }
+      });
     }
+  }
 }

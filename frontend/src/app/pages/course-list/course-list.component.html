@@ -11,7 +11,7 @@
 
   @if (showForm()) {
   <div class="form-card">
-    <h3>Cadastrar Novo Curso</h3>
+    <h3>{{ editingCourseId() ? 'Editar Detalhes do Curso' : 'Cadastrar Novo Curso' }}</h3>
     <form [formGroup]="courseForm" (ngSubmit)="saveCourse()">
       <div class="form-grid">
         <div class="form-group">
@@ -26,12 +26,14 @@
 
         <div class="form-group full-width">
           <label>Descrição do Curso</label>
-          <textarea formControlName="description" rows="3" placeholder="Descreva brevemente os objetivos do curso..."></textarea>
+          <textarea formControlName="description" rows="5" style="resize: vertical;" placeholder="Descreva de forma detalhada o conteúdo programático e os objetivos do curso..."></textarea>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="submit" [disabled]="courseForm.invalid" class="btn-save">Criar Curso</button>
+        <button type="submit" [disabled]="courseForm.invalid" class="btn-save">
+          {{ editingCourseId() ? 'Salvar Alterações' : 'Criar Curso' }}
+        </button>
       </div>
     </form>
   </div>
@@ -60,7 +62,8 @@
         <td class="font-bold">{{ course.name }}</td>
         <td class="text-muted">{{ course.description }}</td>
         <td><span class="badge-hours">{{ course.durationHours }}h</span></td>
-        <td class="text-center">
+        <td class="text-center" style="white-space: nowrap;">
+          <button class="btn-edit" (click)="editCourse(course)">✏️ Editar</button>
           <button class="btn-info" (click)="openStudentsModal(course)">👁️ Ver Alunos</button>
           <button class="btn-delete" (click)="deleteCourse(course.id)">Excluir</button>
         </td>
