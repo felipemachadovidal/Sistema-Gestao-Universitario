@@ -7,12 +7,17 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.NotAuthorizedException
 import org.jboss.logging.Logger
 import org.mindrot.jbcrypt.BCrypt
-import java.util.UUID
+import io.smallrye.jwt.build.Jwt
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.time.Duration
 
 @ApplicationScoped
 class AuthService(private val userRepository: UserRepository) {
 
     private val log: Logger = Logger.getLogger(AuthService::class.java)
+
+    @ConfigProperty(name = "smallrye.jwt.sign.key.string")
+    lateinit var jwtSecret: String
 
     fun login(request: LoginRequest): LoginResponse {
         log.info("Tentativa de login para o usuário: ${request.username}")
@@ -31,9 +36,16 @@ class AuthService(private val userRepository: UserRepository) {
             throw NotAuthorizedException("Usuário ou senha inválidos.")
         }
 
-        log.info("Usuário ${user.username} autenticado com sucesso.")
+        log.info("Usuário ${user.username} autenticado com sucesso. Gerando JWT...")
+
+        val tokenRealJwt = Jwt.issuer("unifor-auth-api")
+            .upn(user.username)
+            .groups(setOf(user.role))
+            .expiresIn(Duration.ofHours(2))
+            .signWithSecret(jwtSecret)
+
         return LoginResponse(
-            token = UUID.randomUUID().toString(),
+            token = tokenRealJwt,
             username = user.username!!,
             role = user.role
         )
