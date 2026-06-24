@@ -201,7 +201,7 @@ npm install -g @angular/cli
 ```bash
 git clone https://github.com/felipemachadovidal/Desafio-Unifor-Desenvolvedor-Junior
 
-cd desafio-unifor
+cd Desafio-Unifor-Desenvolvedor-Junior
 ```
 
 ---
