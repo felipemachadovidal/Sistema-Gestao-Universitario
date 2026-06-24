@@ -68,4 +68,57 @@ class CourseServiceTest {
 
         assertEquals(400, exception.response.status)
     }
+
+    @Test
+    @DisplayName("Deve matricular um aluno com sucesso quando os dados existirem e não houver duplicidade")
+    fun testEnrollStudentSuccess() {
+        val courseId = 1L
+        val studentId = 2L
+
+        val mockStudent = Student().apply { id = studentId; name = "Felipe"; email = "felipe@unifor.br"; deleted = false }
+        val mockCourse = Course().apply { id = courseId; name = "Angular 17"; durationHours = 40; deleted = false }
+
+        `when`(courseRepository.findActiveById(courseId)).thenReturn(mockCourse)
+        `when`(studentRepository.findActiveById(studentId)).thenReturn(mockStudent)
+
+        courseService.enrollStudent(courseId, studentId)
+
+        org.junit.jupiter.api.Assertions.assertTrue(mockCourse.students.contains(mockStudent))
+    }
+
+    @Test
+    @DisplayName("Deve remover a matrícula de um aluno com sucesso")
+    fun testUnenrollStudentSuccess() {
+        val courseId = 1L
+        val studentId = 2L
+
+        val mockStudent = Student().apply { id = studentId; name = "Felipe"; deleted = false }
+        val mockCourse = Course().apply { id = courseId; name = "Angular 17"; deleted = false }
+
+        mockCourse.students.add(mockStudent)
+
+        `when`(courseRepository.findActiveById(courseId)).thenReturn(mockCourse)
+        `when`(studentRepository.findActiveById(studentId)).thenReturn(mockStudent)
+
+        courseService.unenrollStudent(courseId, studentId)
+        org.junit.jupiter.api.Assertions.assertFalse(mockCourse.students.contains(mockStudent))
+    }
+
+    @Test
+    @DisplayName("Deve lançar WebApplicationException (Bad Request) ao tentar desvincular aluno que não está no curso")
+    fun testUnenrollStudentNotEnrolled() {
+        val courseId = 1L
+        val studentId = 2L
+        val mockStudent = Student().apply { id = studentId; name = "Felipe"; deleted = false }
+        val mockCourse = Course().apply { id = courseId; name = "Angular 17"; deleted = false }
+
+        `when`(courseRepository.findActiveById(courseId)).thenReturn(mockCourse)
+        `when`(studentRepository.findActiveById(studentId)).thenReturn(mockStudent)
+
+        val exception = assertThrows(WebApplicationException::class.java) {
+            courseService.unenrollStudent(courseId, studentId)
+        }
+
+        assertEquals(400, exception.response.status)
+    }
 }

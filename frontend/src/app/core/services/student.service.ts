@@ -35,4 +35,8 @@ export class StudentService {
   softDelete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  update(id: number, student: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, student);
+  }
 }

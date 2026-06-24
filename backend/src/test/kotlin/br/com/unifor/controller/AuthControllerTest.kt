@@ -35,7 +35,7 @@ class AuthControllerTest {
 
         val credentials = mapOf(
             "username" to "admin@unifor.br",
-            "javaPassword" to rawPassword
+            "password" to rawPassword
         )
 
         given()
@@ -57,13 +57,14 @@ class AuthControllerTest {
         val mockUser = User().apply {
             username = "admin@unifor.br"
             passwordHash = hashedPassword
+            role = "ADMIN" // Garanta que propriedades estruturais não quebrem a validação
         }
 
         whenever(userRepository.findByUsername("admin@unifor.br")).thenReturn(mockUser)
 
         val badCredentials = mapOf(
             "username" to "admin@unifor.br",
-            "javaPassword" to "senhaErradaInvalida"
+            "password" to "senhaErradaInvalida" // 🌟 Valide se está escrito 'password' aqui também!
         )
 
         given()

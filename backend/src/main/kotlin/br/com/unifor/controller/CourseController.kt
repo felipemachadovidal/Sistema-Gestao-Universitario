@@ -9,7 +9,7 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
 
-@Path("/api/courses")
+@Path("/courses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 class CourseController(
@@ -60,5 +60,15 @@ class CourseController(
     @Path("/{courseId}/students")
     fun getEnrolledStudents(@PathParam("courseId") courseId: Long): List<StudentResponse> {
         return courseService.listStudentsEnrolled(courseId)
+    }
+
+    @DELETE
+    @Path("/{courseId}/unenroll/{studentId}")
+    fun unenrollStudent(
+        @PathParam("courseId") courseId: Long,
+        @PathParam("studentId") studentId: Long
+    ): Response {
+        courseService.unenrollStudent(courseId, studentId)
+        return Response.noContent().build()
     }
 }

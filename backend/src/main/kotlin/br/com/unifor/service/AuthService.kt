@@ -7,12 +7,17 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.NotAuthorizedException
 import org.jboss.logging.Logger
 import org.mindrot.jbcrypt.BCrypt
-import java.util.UUID
+import io.smallrye.jwt.build.Jwt
+import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.time.Duration
 
 @ApplicationScoped
 class AuthService(private val userRepository: UserRepository) {
 
     private val log: Logger = Logger.getLogger(AuthService::class.java)
+
+    @ConfigProperty(name = "smallrye.jwt.sign.key.string")
+    lateinit var jwtSecret: String
 
     fun login(request: LoginRequest): LoginResponse {
         log.info("Tentativa de login para o usuário: ${request.username}")
@@ -20,28 +25,27 @@ class AuthService(private val userRepository: UserRepository) {
         val user = userRepository.findByUsername(request.username)
             ?: throw NotAuthorizedException("Usuário ou senha inválidos.")
 
-        // 🌟 HIGIENIZAÇÃO COMPLETA: Remove caracteres invisíveis, nulos ou de controle de bytes
-        val senhaLimpa = request.password
-            .replace(Regex("[\\p{Cc}\\h]"), "") // Remove caracteres de controle e espaços horizontais ocultos
+        val cleanPassword = request.password
+            .replace(Regex("[\\p{Cc}\\h]"), "")
             .trim()
 
-        // Faz o teste com a senha totalmente higienizada
-        val loginSucesso = BCrypt.checkpw(senhaLimpa, user.passwordHash?.trim())
+        val isLoginSuccessful = BCrypt.checkpw(cleanPassword, user.passwordHash)
 
-        log.info("👉 Senha Higienizada: [$senhaLimpa]")
-        log.info("👉 Resultado do Match Definitivo: $loginSucesso")
-
-        val hashGeradoNaHora = BCrypt.hashpw("admin123", BCrypt.gensalt())
-        log.info("🚨 COPIE ESTE HASH DO CONSOLE: $hashGeradoNaHora")
-
-        if (!loginSucesso) {
+        if (!isLoginSuccessful) {
             log.warn("Senha inválida para o usuário: ${request.username}")
             throw NotAuthorizedException("Usuário ou senha inválidos.")
         }
 
-        log.info("Usuário ${user.username} autenticado com sucesso.")
+        log.info("Usuário ${user.username} autenticado com sucesso. Gerando JWT...")
+
+        val tokenRealJwt = Jwt.issuer("unifor-auth-api")
+            .upn(user.username)
+            .groups(setOf(user.role))
+            .expiresIn(Duration.ofHours(2))
+            .signWithSecret(jwtSecret)
+
         return LoginResponse(
-            token = UUID.randomUUID().toString(),
+            token = tokenRealJwt,
             username = user.username!!,
             role = user.role
         )

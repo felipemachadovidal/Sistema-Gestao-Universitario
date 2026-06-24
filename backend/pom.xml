@@ -99,6 +99,10 @@
             <version>5.2.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-jwt-build</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

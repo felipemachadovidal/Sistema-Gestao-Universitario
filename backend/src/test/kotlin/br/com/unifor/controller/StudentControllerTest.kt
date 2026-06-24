@@ -26,7 +26,7 @@ class StudentControllerTest {
             .`when`()
             .post("/api/students")
             .then()
-            .statusCode(201) // 201 Created
+            .statusCode(201)
             .body("id", notNullValue())
             .body("name", `is`("Felipe Vidal"))
             .body("email", `is`("felipe@unifor.br"))
@@ -85,12 +85,19 @@ class StudentControllerTest {
             .then()
             .statusCode(400)
     }
+
     @Test
     @DisplayName("Deve retornar 204 No Content ao realizar o Soft Delete de um estudante")
     fun testDeleteStudentSuccess() {
+        val studentId = given()
+            .contentType(ContentType.JSON)
+            .body(mapOf("name" to "Estudante Deletar", "email" to "del@u.com", "cpf" to "99988877766"))
+            .post("/api/students")
+            .then().statusCode(201).extract().path<Int>("id")
+
         given()
             .`when`()
-            .delete("/api/students/1")
+            .delete("/api/students/$studentId")
             .then()
             .statusCode(204)
     }
